@@ -55,17 +55,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNetworkRequest(User user) {
-        //Interceptor
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         //okhttpclient
         OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder();
-        okHttpClient.addInterceptor(interceptor);
+
+        //Interceptor
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        
+        if (BuildConfig.DEBUG){
+            okHttpClient.addInterceptor(interceptor);
+        }
+
 
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl("http://10.0.2.2:3000/")
-                .addConverterFactory(GsonConverterFactory.create());
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient.build());
 
         Retrofit retrofit = builder.build();
 
@@ -75,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                Toast.makeText(MainActivity.this, "Success UserID = "+ response.body().getId(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Success UserID = "+ response.body().toString(), Toast.LENGTH_SHORT).show();
                 if (response.body() == null){
                     Log.e("Error",response.code()+"");
                     Log.e("Erro2", response.errorBody().toString());
@@ -88,6 +94,5 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Failure", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 }
